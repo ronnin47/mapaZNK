@@ -1,0 +1,6 @@
+.agrandar:hover {
+    transform: scale(1.6)!important;
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.8)!important; /* Box-shadow rojizo */
+    z-index: 1500!important;
+  }
+ 
