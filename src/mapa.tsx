@@ -66,7 +66,7 @@ const [tokens, setTokens] = useState<Token[]>([]);
       setNewTokenImage(null);
       setNewTokenName('');
     } else {
-      alert('Por favor, proporciona un nombre e imagen para el token.');
+      alert('Por favor, proporciona un nombre e imagen para el Token.');
     }
   };
   const [backgroundImage, setBackgroundImage] = useState('/mapa1.jpg'); // Estado para la imagen de fondo
