@@ -3,4 +3,40 @@
     box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.8)!important; /* Box-shadow rojizo */
     z-index: 1500!important;
   }
- 
+  @keyframes expandAndFade {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(4); /* Expansión más rápida */
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(6); /* Expansión aún mayor */
+      opacity: 0;
+    }
+  }
+  
+  .marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #ff0000, #ffea00); /* Gradiente de rojo a amarillo */
+    border-radius: 50%;
+    animation: expandAndFade 1s ease-out forwards; /* Animación rápida */
+    z-index: 100000000000;
+    pointer-events: none; /* No interactúa con eventos del mouse */
+  }
+  
+  .map-container {
+    position: relative;
+  }
+  
+  .map-container:hover {
+    cursor: none; /* Opcional: Desactiva el cursor en el área del mapa para que no interfiera */
+  }
+  .trash-bin:hover{
+    transform:scale(1.2);
+
+  }
