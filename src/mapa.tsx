@@ -69,7 +69,7 @@ const [animateTrash, setAnimateTrash] = useState(false);
 
   const handleAddToken = () => {
     if (newTokenImage && newTokenName) {
-      const newId = Date.now().toString(); // Asegura que el ID sea único
+      const newId = Date.now().toString(); 
     
       const newToken: Token = {
         id: newId,
