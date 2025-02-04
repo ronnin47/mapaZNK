@@ -2,6 +2,13 @@ import React, { useState, useEffect} from 'react';
 import { Button } from 'react-bootstrap';
 import 'animate.css'; // Importar Animate.css
 
+
+
+
+
+import { io } from "socket.io-client";
+const socket = io("http://localhost:10000"); // Ajusta según tu backend
+
 interface Token {
   id: string;
   x: number;
@@ -12,13 +19,47 @@ interface Token {
 
 export const Mapa: React.FC = () => {
 
+
+
+
+
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("🟢 Conectado al servidor:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Desconectado del servidor");
+    });
+
+      // Escuchar cuando se actualizan los tokens desde el servidor
+  socket.on("updateTokens", (updatedTokens: Token[]) => {
+    setTokens(updatedTokens);
+  });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.disconnect();
+    };
+  }, []);
+
+
+
+
+
+
+
+
+/*
   const [tokens, setTokens] = useState<Token[]>([
     { id: '1', x: 50, y: 50, image: '/trasgo1.jpg', name: 'Trasgo I' },
     { id: '2', x: 150, y: 100, image: '/trasgo2.jpg', name: 'Trasgo II' },
     { id: '3', x: 250, y: 200, image: '/trasgo3.jpg', name: 'Trasgo III' },
   ]);
-
-//  const [tokens, setTokens] = useState<Token[]>([]);
+*/
+ const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newTokenImage, setNewTokenImage] = useState<string | null>(null);
@@ -67,26 +108,33 @@ const [animateTrash, setAnimateTrash] = useState(false);
 
   
 
-  const handleAddToken = () => {
-    if (newTokenImage && newTokenName) {
-      const newId = Date.now().toString(); 
+  // Emitir nuevo token al servidor
+const handleAddToken = () => {
+  if (newTokenImage && newTokenName) {
+    const newId = Date.now().toString(); 
+    const newToken: Token = {
+      id: newId,
+      x: 100,
+      y: 100,
+      image: newTokenImage,
+      name: newTokenName,
+    };
     
-      const newToken: Token = {
-        id: newId,
-        x: 100,
-        y: 100,
-        image: newTokenImage,
-        name: newTokenName,
-      };
+    // Enviar nuevo token al servidor
+    socket.emit("addToken", newToken);
     
-      setTokens((prev) => [...prev, newToken]);
-      setShowModal(false);
-      setNewTokenImage(null);
-      setNewTokenName('');
-    } else {
-      alert('Por favor, proporciona un nombre e imagen para el Token.');
-    }
-  };
+    setShowModal(false);
+    setNewTokenImage(null);
+    setNewTokenName('');
+  } else {
+    alert('Por favor, proporciona un nombre e imagen para el Token.');
+  }
+};
+
+
+
+
+
   const [backgroundImage, setBackgroundImage] = useState('/mapa1.jpg'); // Estado para la imagen de fondo
 
   const handleChangeBackground = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -187,24 +235,113 @@ const [animateTrash, setAnimateTrash] = useState(false);
 
 
 
-  const handleDropOnTrash = (event: React.DragEvent) => {
-    event.preventDefault();
-    const tokenId = event.dataTransfer.getData("tokenId");
+
+
+
+
+
+// Emitir evento para eliminar un token
+const handleDropOnTrash = (event: React.DragEvent) => {
+  event.preventDefault();
+  const tokenId = event.dataTransfer.getData("tokenId");
+
+  if (!tokenId) {
+    console.error("No tokenId found!");
+    return;
+  }
+
+  console.log("ESTE ES EL ID QUE MANDA A ELIMINAR:", tokenId); // Verifica que el tokenId es correcto
+  console.log(typeof tokenId)
+
+  setAnimateTrash(true);
+
+
+   // Eliminar el token de la lista
+   setTokens((prevTokens) => prevTokens.filter(token => token.id !== tokenId));
   
-    // Activar la animación
-    setAnimateTrash(true);
-  
-    // Eliminar el token de la lista
-    setTokens((prevTokens) => prevTokens.filter(token => token.id !== tokenId));
-    
-    // Si el token eliminado estaba seleccionado, quitarlo de la selección
-    setSelectedTokens((prevSelected) => prevSelected.filter(id => id !== tokenId));
-  
-    // Restablecer la animación después de que termine (1 segundo es la duración de la animación)
-    setTimeout(() => {
-      setAnimateTrash(false); // Desactivar animación después de la duración
-    }, 1000); // Duración de la animación en milisegundos
+   // Si el token eliminado estaba seleccionado, quitarlo de la selección
+   setSelectedTokens((prevSelected) => prevSelected.filter(id => id !== tokenId));
+
+  // Emitir evento para eliminar el token en todos los clientes
+  socket.emit("removeToken", tokenId);
+
+  setTimeout(() => {
+    setAnimateTrash(false);
+  }, 1000);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleTokenMove = (id: string, newX: number, newY: number) => {
+  // Emitir evento al servidor con la nueva posición del token
+  socket.emit("moveToken", { id, x: newX, y: newY });
+};
+
+useEffect(() => {
+  // Este socket escucha el evento para recibir todos los tokens actualizados (si se cambia algo globalmente)
+  socket.on("updateTokens", (updatedTokens) => {
+    console.log("🔄 Tokens actualizados:", updatedTokens);
+    setTokens(updatedTokens); // Reemplazar el estado con la nueva lista
+  });
+
+  // Este socket escucha el evento cuando solo se mueve un token
+  socket.on("moveToken", (updatedToken) => {
+    setTokens((prevTokens) =>
+      prevTokens.map((token) =>
+        token.id === updatedToken.id
+          ? { ...token, x: updatedToken.x, y: updatedToken.y }
+          : token
+      )
+    );
+  });
+
+  // Limpiar listeners cuando el componente se desmonta
+  return () => {
+    socket.off("updateTokens");
+    socket.off("moveToken");
   };
+}, []);
+
+const handleDrag = (e: React.DragEvent, tokenId: string) => {
+  // Establecer el tokenId en el dataTransfer para que pueda ser accedido más tarde en el evento de drop
+  e.dataTransfer.setData("tokenId", tokenId);
+
+  const newX = e.clientX; // O cualquier otra lógica para calcular las nuevas coordenadas
+  const newY = e.clientY;
+
+  // Actualiza la posición localmente en el cliente, lo primero para que se vea el cambio inmediato
+  setTokens((prevTokens) =>
+    prevTokens.map((token) =>
+      token.id === tokenId ? { ...token, x: newX, y: newY } : token
+    )
+  );
+
+  // Emitir el movimiento al servidor para que se sincronice con los demás clientes
+  handleTokenMove(tokenId, newX, newY);
+};
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div
@@ -555,15 +692,14 @@ const [animateTrash, setAnimateTrash] = useState(false);
           </text>
         </svg>
       )}
-      {tokens.map((token) => (
+{tokens.map((token) => (
   <div
     key={token.id}
     draggable={true}
-    onDragStart={(e) => {
-      e.dataTransfer.setData("tokenId", token.id); // Almacena el ID del token en dataTransfer
-    }}
+    onDragStart={(e) => handleDrag(e, token.id)}  // Llamamos a handleDrag
     onClick={() => handleTokenClick(token.id)}
     onDragEnd={(e) => {
+      // Actualizamos el estado localmente
       setTokens((prev) =>
         prev.map((t) =>
           t.id === token.id
@@ -575,6 +711,9 @@ const [animateTrash, setAnimateTrash] = useState(false);
             : t
         )
       );
+
+      // Emitimos el cambio de posición a otros clientes si estás usando WebSockets
+      socket.emit("moveToken", { id: token.id, x: e.clientX - 25, y: e.clientY - 25 });
     }}
     className='agrandar'
     style={{
