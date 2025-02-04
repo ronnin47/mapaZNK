@@ -12,13 +12,13 @@ interface Token {
 
 export const Mapa: React.FC = () => {
 
-  /*const [tokens, setTokens] = useState<Token[]>([
-    { id: '1', x: 50, y: 50, image: '/emperador.jpg', name: 'Emperador' },
-    { id: '2', x: 150, y: 100, image: '/horus.jpg', name: 'Horus' },
-    { id: '3', x: 250, y: 200, image: '/anubis.jpg', name: 'Anubis' },
+  const [tokens, setTokens] = useState<Token[]>([
+    { id: '1', x: 50, y: 50, image: '/trasgo1.jpg', name: 'Trasgo I' },
+    { id: '2', x: 150, y: 100, image: '/trasgo2.jpg', name: 'Trasgo II' },
+    { id: '3', x: 250, y: 200, image: '/trasgo3.jpg', name: 'Trasgo III' },
   ]);
-*/
-  const [tokens, setTokens] = useState<Token[]>([]);
+
+//  const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newTokenImage, setNewTokenImage] = useState<string | null>(null);
@@ -69,13 +69,16 @@ const [animateTrash, setAnimateTrash] = useState(false);
 
   const handleAddToken = () => {
     if (newTokenImage && newTokenName) {
+      const newId = Date.now().toString(); // Asegura que el ID sea único
+    
       const newToken: Token = {
-        id: (tokens.length + 1).toString(),
+        id: newId,
         x: 100,
         y: 100,
         image: newTokenImage,
         name: newTokenName,
       };
+    
       setTokens((prev) => [...prev, newToken]);
       setShowModal(false);
       setNewTokenImage(null);
@@ -584,11 +587,15 @@ const [animateTrash, setAnimateTrash] = useState(false);
       backgroundImage: `url(${token.image})`,
       backgroundSize: 'cover',
       border: selectedTokens.includes(token.id)
-        ? '2px solid red'
-        : '2px solid black',
+        ? '4px solid #ffffff'  // Borde blanco brillante cuando está seleccionado
+        : '2px solid black',    // Borde por defecto
+      transition: 'all 0.04s ease', // Transición suave cuando se selecciona o deselecciona
+      boxShadow: selectedTokens.includes(token.id)
+        ? '0 0 10px 2px rgba(255, 255, 255, 0.7)'  // Sombra blanca brillante
+        : 'none', // Sin sombra cuando no está seleccionado
       cursor: 'pointer',
       pointerEvents: 'auto',
-      zIndex: 2,
+      zIndex: 2
     }}
   >
     {/* Token Name */}
