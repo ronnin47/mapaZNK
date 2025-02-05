@@ -23,24 +23,25 @@ export const Mapa: React.FC = () => {
 
 
 
-
   useEffect(() => {
+    const handleUpdateTokens = (updatedTokens: Token[]) => {
+      setTokens(updatedTokens);
+    };
+  
     socket.on("connect", () => {
       console.log("🟢 Conectado al servidor:", socket.id);
     });
-
+  
     socket.on("disconnect", () => {
       console.log("❌ Desconectado del servidor");
     });
-
-      // Escuchar cuando se actualizan los tokens desde el servidor
-  socket.on("updateTokens", (updatedTokens: Token[]) => {
-    setTokens(updatedTokens);
-  });
-
+  
+    socket.on("updateTokens", handleUpdateTokens);
+  
     return () => {
       socket.off("connect");
       socket.off("disconnect");
+      socket.off("updateTokens", handleUpdateTokens);
       socket.disconnect();
     };
   }, []);
@@ -282,13 +283,13 @@ const handleDropOnTrash = (event: React.DragEvent) => {
 
 
 
-
+/*
 
 const handleTokenMove = (id: string, newX: number, newY: number) => {
   // Emitir evento al servidor con la nueva posición del token
   socket.emit("moveToken", { id, x: newX, y: newY });
 };
-
+*/
 useEffect(() => {
   // Este socket escucha el evento para recibir todos los tokens actualizados (si se cambia algo globalmente)
   socket.on("updateTokens", (updatedTokens) => {
@@ -313,8 +314,9 @@ useEffect(() => {
     socket.off("moveToken");
   };
 }, []);
-
+/*
 const handleDrag = (e: React.DragEvent, tokenId: string) => {
+  
   // Establecer el tokenId en el dataTransfer para que pueda ser accedido más tarde en el evento de drop
   e.dataTransfer.setData("tokenId", tokenId);
 
@@ -329,8 +331,11 @@ const handleDrag = (e: React.DragEvent, tokenId: string) => {
   );
 
   // Emitir el movimiento al servidor para que se sincronice con los demás clientes
-  handleTokenMove(tokenId, newX, newY);
+ // handleTokenMove(tokenId, newX, newY);
 };
+*/
+
+
 
 
 
@@ -696,7 +701,10 @@ const handleDrag = (e: React.DragEvent, tokenId: string) => {
   <div
     key={token.id}
     draggable={true}
-    onDragStart={(e) => handleDrag(e, token.id)}  // Llamamos a handleDrag
+    onDragStart={(e) => {
+      e.dataTransfer.setData("tokenId", token.id); // Almacena el ID del token en dataTransfer
+    }}
+    
     onClick={() => handleTokenClick(token.id)}
     onDragEnd={(e) => {
       // Actualizamos el estado localmente
