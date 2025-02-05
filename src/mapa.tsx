@@ -7,8 +7,8 @@ import 'animate.css'; // Importar Animate.css
 
 
 import { io } from "socket.io-client";
-const socket = io("http://localhost:10000"); // Ajusta según tu backend
-//const socket = io("https://mapaznk.onrender.com"); // Ajusta según tu backend
+//const socket = io("http://localhost:10000"); // Ajusta según tu backend
+const socket = io("https://mapaznk.onrender.com"); // Ajusta según tu backend
 
 interface Token {
   id: string;
