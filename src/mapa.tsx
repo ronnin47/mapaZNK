@@ -7,8 +7,8 @@ import 'animate.css'; // Importar Animate.css
 
 
 import { io } from "socket.io-client";
-//const socket = io("http://localhost:10000"); // Ajusta según tu backend
-const socket = io("https://mapaznk.onrender.com"); // Ajusta según tu backend
+const socket = io("http://localhost:10000"); // Ajusta según tu backend
+//const socket = io("https://mapaznk.onrender.com"); // Ajusta según tu backend
 
 interface Token {
   id: string;
@@ -19,10 +19,6 @@ interface Token {
 }
 
 export const Mapa: React.FC = () => {
-
-
-
-
 
   useEffect(() => {
     const handleUpdateTokens = (updatedTokens: Token[]) => {
@@ -49,11 +45,6 @@ export const Mapa: React.FC = () => {
 
 
 
-
-
-
-
-
 /*
   const [tokens, setTokens] = useState<Token[]>([
     { id: '1', x: 50, y: 50, image: '/trasgo1.jpg', name: 'Trasgo I' },
@@ -61,7 +52,7 @@ export const Mapa: React.FC = () => {
     { id: '3', x: 250, y: 200, image: '/trasgo3.jpg', name: 'Trasgo III' },
   ]);
 */
- const [tokens, setTokens] = useState<Token[]>([]);
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [newTokenImage, setNewTokenImage] = useState<string | null>(null);
@@ -95,7 +86,8 @@ const [animateTrash, setAnimateTrash] = useState(false);
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   };
 
-  const pixelsPerMeter = 3.78;
+  //const pixelsPerMeter = 3.78;
+  const pixelsPerMeter = 10;
   const distanceInMeters =
     selectedTokens.length === 2
       ? calculateDistance(
@@ -103,7 +95,7 @@ const [animateTrash, setAnimateTrash] = useState(false);
           getTokenById(selectedTokens[0])?.y! + 25,
           getTokenById(selectedTokens[1])?.x! + 25,
           getTokenById(selectedTokens[1])?.y! + 25
-        ) / pixelsPerMeter - 12
+        ) / pixelsPerMeter -4.5
       : 0;
 
   const roundedDistance = Math.round(distanceInMeters);
@@ -196,7 +188,7 @@ const handleAddToken = () => {
       );
 
       // Convertimos la distancia a metros y aplicamos el ajuste de -12
-      const distanceInMeters = (distanceInPixels / pixelsPerMeter) - 12;
+      const distanceInMeters = (distanceInPixels / pixelsPerMeter) - 2.25;
 
       const roundedDistance = Math.round(distanceInMeters);
 
@@ -543,7 +535,7 @@ const handleDrag = (e: React.DragEvent, tokenId: string) => {
               linear-gradient(to right, rgba(255, 255, 255, 0.68) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 1px, transparent 1px)
             `,
-              backgroundSize: '36.67px 36.67px',
+              backgroundSize: '46px 46px',
               pointerEvents: 'none', // Evita que interfiera con la interacción
               zIndex: 2,
             }}
