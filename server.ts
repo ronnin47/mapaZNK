@@ -92,12 +92,12 @@ io.on("connection", (socket) => {
   });
 });
 
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, 'dist')));
+// 🔹 Cambiar la ruta de los archivos estáticos
+app.use(express.static("dist"));
 
-// Manejo de rutas en el frontend
+// 🔹 Asegurar que index.html se sirve correctamente
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.resolve("dist", "index.html"));
 });
 
 // Iniciar el servidor con puerto dinámico

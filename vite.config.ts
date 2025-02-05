@@ -7,5 +7,5 @@ export default defineConfig({
   build: {
     outDir: 'dist', // Asegúrate de que los archivos se generen en la carpeta correcta
   },
-  base: process.env.NODE_ENV === 'production' ? '/dist/' : '/',
+  base: './',
 })
