@@ -13,7 +13,7 @@ const httpServer = createServer(app);
 // Configurar Socket.IO con CORS permitido para el frontend
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"], // Agrega más si es necesario
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://mapaznk.onrender.com"], // Agrega más si es necesario
     methods: ["GET", "POST"],
   },
 });
